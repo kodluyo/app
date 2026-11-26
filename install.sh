@@ -1,6 +1,6 @@
-apt update
-apt install curl unzip
+sudo apt update
+sudo apt install curl unzip
 curl -L -o app.zip https://github.com/kodluyo/app/archive/refs/heads/master.zip
-unzip app.zip
-mv app-main/ /app
-rm app.zip
+sudo unzip app.zip
+sudo mv app-main/ /app
+sudo rm app.zip
