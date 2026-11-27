@@ -8,13 +8,11 @@ VERSION="v${CLEAN_VERSION}"
 
 sh /app/lib/message.sh light "NODEJS $VERSION"
 
-
 FILE="node-${VERSION}-linux-x64"
 URL="https://nodejs.org/dist/${VERSION}/${FILE}.tar.xz"
 INSTALL_DIR="/app/files/node/${VERSION}"
 
 VERSION_NODE_LINK="/app/node${CLEAN_VERSION}"
-VERSION_NPM_LINK="/app/npm${CLEAN_VERSION}"
 ACTIVE_NODE_LINK="/app/node"
 ACTIVE_NPM_LINK="/app/npm"
 
@@ -29,6 +27,10 @@ tar -xf node.tar.xz -C "$INSTALL_DIR" --strip-components=1
 echo "🧹 Cleaning downloaded file..."
 rm -f node.tar.xz
 
+# Kurulan paketten gerçek npm sürümünü al
+NPM_VERSION="$("${INSTALL_DIR}/bin/npm" -v)"
+VERSION_NPM_LINK="/app/npm${NPM_VERSION}"
+
 echo "🔗 Creating symlinks..."
 ln -sf "${INSTALL_DIR}/bin/node" "$VERSION_NODE_LINK"
 ln -sf "${INSTALL_DIR}/bin/npm" "$VERSION_NPM_LINK"
@@ -39,6 +41,6 @@ ln -sf "$ACTIVE_NPM_LINK" /usr/local/bin/npm
 
 echo "✅ Node installation completed!"
 echo "Node version : $("$ACTIVE_NODE_LINK" -v)"
-echo "NPM version  : $("$ACTIVE_NPM_LINK" -v)"
+echo "NPM version  : ${NPM_VERSION}"
 echo "Node link    : ${VERSION_NODE_LINK} -> ${ACTIVE_NODE_LINK}"
 echo "NPM link     : ${VERSION_NPM_LINK} -> ${ACTIVE_NPM_LINK}"
