@@ -27,8 +27,8 @@ tar -xf node.tar.xz -C "$INSTALL_DIR" --strip-components=1
 echo "🧹 Cleaning downloaded file..."
 rm -f node.tar.xz
 
-# Kurulan paketten gerçek npm sürümünü al
-NPM_VERSION="$("${INSTALL_DIR}/bin/npm" -v)"
+# Kurulan paketten gerçek npm sürümünü al (PATH'e yeni node bin dizinini ekleyerek)
+NPM_VERSION="$(PATH="${INSTALL_DIR}/bin:$PATH" "${INSTALL_DIR}/bin/npm" -v)"
 VERSION_NPM_LINK="/app/npm${NPM_VERSION}"
 
 echo "🔗 Creating symlinks..."
