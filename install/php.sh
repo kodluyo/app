@@ -42,5 +42,12 @@ fi
 
 
 echo "[.] Kısayol oluşturuluyor -> /app/php "
-sudo ln -s /usr/local/bin/php /app/php
-sudo chmod +x /app/php
+PHP_BIN=$(whereis -b php | awk '{print $2}')
+
+if [ -n "$PHP_BIN" ] && [ -x "$PHP_BIN" ]; then
+  sudo ln -sf "$PHP_BIN" /app/php
+  sudo chmod +x /app/php
+  echo "[+] Bağlantı oluşturuldu: /app/php -> $PHP_BIN"
+else
+  echo "[-] Sistemde çalışan bir php ikilisi bulunamadı."
+fi
