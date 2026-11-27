@@ -6,3 +6,4 @@ sudo mv app-main/ /app
 sudo rm app.zip
 sudo sh /app/install/php.sh
 sudo sh /app/install/golang.sh 1.20
+sudo sh /app/install/mariadb.sh
