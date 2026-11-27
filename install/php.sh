@@ -42,4 +42,5 @@ fi
 
 
 echo "[.] Kısayol oluşturuluyor -> /app/php "
-ln -sf  /usr/local/bin/php /app/php
+sudo ln -s /usr/local/bin/php /app/php
+sudo chmod +x /app/php
