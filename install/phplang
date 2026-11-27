@@ -1,66 +1,49 @@
 #!/bin/bash
 
-# Parametre olarak tam sürüm al (örnek: 8.5.13), verilmezse varsayılan 8.5.13 kullan
-PHP_VERSION="${1:-8.5.13}"
+# Parametre olarak sürüm al (örnek: 8.5, 8.4, 8.3), verilmezse varsayılan 8.5 kullan
+PHP_VERSION="${1:-8.5}"
 
 sh /app/lib/message.sh light "PHP $PHP_VERSION"
-
-ARCHIVE_NAME="php-${PHP_VERSION}.tar.gz"
-DOWNLOAD_URL="https://www.php.net/distributions/${ARCHIVE_NAME}"
-SRC_DIR="/tmp/php-${PHP_VERSION}"
 
 INSTALL_DIR="/app/files/php/${PHP_VERSION}"
 LINK_PATH="/app/php${PHP_VERSION}"
 
-# Derleme ve indirme için gerekli paketler
-apt update
-DEBIAN_FRONTEND=noninteractive apt install -y \
-    wget build-essential autoconf bison re2c pkg-config \
-    libxml2-dev libsqlite3-dev libssl-dev libcurl4-openssl-dev \
-    libonig-dev zlib1g-dev
+export DEBIAN_FRONTEND=noninteractive
 
-mkdir -p "/app/files/php"
-rm -rf "${SRC_DIR}" "${INSTALL_DIR}"
+# Depo ekleme araçları ve paketler
+apt-get update
+apt-get install -y software-properties-common ca-certificates lsb-release apt-transport-https
 
-echo "Downloading PHP ${PHP_VERSION}..."
-wget -q --show-progress "${DOWNLOAD_URL}"
-if [ $? -ne 0 ]; then
-    echo "HATA: PHP ${PHP_VERSION} indirilemedi. Sürüm numarasını ve bağlantıyı kontrol edin."
+# Ondřej Surý PHP deposunu ekle (Ubuntu/Debian)
+LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
+apt-get update
+
+# PHP CLI ve sık kullanılan temel eklentileri kur
+apt-get install -y \
+    "php${PHP_VERSION}-cli" \
+    "php${PHP_VERSION}-common" \
+    "php${PHP_VERSION}-curl" \
+    "php${PHP_VERSION}-mbstring" \
+    "php${PHP_VERSION}-xml" \
+    "php${PHP_VERSION}-zip" \
+    "php${PHP_VERSION}-mysql" \
+    "php${PHP_VERSION}-sqlite3"
+
+# Sistemdeki ikili dosyanın gerçek yolunu bul ve /app altına bağla
+PHP_BIN="$(command -v "php${PHP_VERSION}")"
+if [ -z "${PHP_BIN}" ]; then
+    echo "HATA: php${PHP_VERSION} ikilisi bulunamadı. Sürümü kontrol edin."
     exit 1
 fi
 
-mkdir -p "${SRC_DIR}" "${INSTALL_DIR}"
-tar -xzf "${ARCHIVE_NAME}" --strip-components=1 -C "${SRC_DIR}"
+mkdir -p "${INSTALL_DIR}/bin"
+ln -sf "${PHP_BIN}" "${INSTALL_DIR}/bin/php"
 
-echo "Configuring and compiling PHP ${PHP_VERSION}..."
-cd "${SRC_DIR}" || exit 1
-./configure \
-    --prefix="${INSTALL_DIR}" \
-    --with-openssl \
-    --with-curl \
-    --with-zlib \
-    --enable-mbstring \
-    --enable-pdo \
-    --with-pdo-sqlite
-
-make -j"$(nproc)"
-if [ $? -ne 0 ]; then
-    echo "HATA: PHP ${PHP_VERSION} derlenemedi."
-    rm -rf "${SRC_DIR}" "${ARCHIVE_NAME}"
-    exit 1
-fi
-
-make install
-
-# Kısa yol (Symlink) oluşturma
-echo "Creating symlink at ${LINK_PATH}..."
 rm -f "${LINK_PATH}" "/app/php"
 ln -s "${INSTALL_DIR}/bin/php" "${LINK_PATH}"
 ln -s "${INSTALL_DIR}/bin/php" "/app/php"
 
-# Geçici dosyaları temizle
-cd /app || exit 1
-rm -rf "${SRC_DIR}" "${ARCHIVE_NAME}"
+chmod +x "${LINK_PATH}" "/app/php"
 
 echo "==========================================="
 sh /app/lib/message.sh success "Kurulum Tamamlandı php $PHP_VERSION"
