@@ -44,9 +44,9 @@ if [ -f "main.go" ]; then
 
   "$target_path" "$@"
 elif [ -f "router.php" ]; then
-  /app/php -S 0.0.0.0
+  /app/php "router.php" "$@"
 elif [ -f "main.js" ]; then
-  /app/node main.js
+  /app/node main.js "$@"
 else
   echo "Çalıştırılabilir bir giriş dosyası bulunamadı (main.go, router.php veya main.js)." >&2
   exit 1
