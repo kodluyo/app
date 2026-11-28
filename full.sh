@@ -5,6 +5,7 @@ sudo unzip app.zip
 sudo mv app-main/ /app
 sudo rm app.zip
 sudo chmod +x /app/install/*
+sudo chmod +x /app/build
 sudo /app/install/php
 sudo /app/install/mariadb
 sudo /app/install/nodejs 24.11.1
