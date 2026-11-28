@@ -1,0 +1,23 @@
+#!/bin/bash
+echo "[.] Building $0"
+set -e
+
+
+if [ -f "main.go" ]; then
+  echo "[.] Golang Found"
+  if [ ! -f "go.mod" ]; then
+    /app/go mod init app
+  fi
+  /app/go mod tidy
+  
+  echo "[.] Running"
+  sudo /app/go run . "$@"
+
+elif [ -f "router.php" ]; then
+  /app/php "router.php" "$@"
+elif [ -f "main.js" ]; then
+  /app/node main.js "$@"
+else
+  echo "Çalıştırılabilir bir giriş dosyası bulunamadı (main.go, router.php veya main.js)." >&2
+  exit 1
+fi
