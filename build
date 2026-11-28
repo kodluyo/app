@@ -1,0 +1,53 @@
+#!/bin/bash
+echo "[.] Building $0"
+set -e
+
+
+resolve_output_name() {
+  local current_dir="$PWD"
+  local domain_name=""
+
+  while [ -n "$current_dir" ] && [ "$current_dir" != "/" ]; do
+    local base_name
+    base_name="$(basename "$current_dir")"
+
+    # Alan adı kalıbı: en az bir nokta içeren (örn. test.example.com) dizin adı
+    if [[ "$base_name" =~ ^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$ ]]; then
+      domain_name="$base_name"
+      break
+    fi
+
+    current_dir="$(dirname "$current_dir")"
+  done
+
+  if [ -n "$domain_name" ]; then
+    echo "${domain_name}"
+  else
+    echo "$(basename "$PWD")"
+  fi
+}
+
+
+if [ -f "main.go" ]; then
+  echo "[.] Golang Found"
+  if [ ! -f "go.mod" ]; then
+    /app/go mod init app
+  fi
+  /app/go mod tidy
+  out_name="$(resolve_output_name)"
+  target_path="/build/${out_name}"
+
+  sudo mkdir -p /build
+  /app/go build -o "$target_path"
+  sudo chmod +x "$target_path"
+  echo "[.] Built binary at ${target_path}"
+
+  "$target_path" "$@"
+elif [ -f "router.php" ]; then
+  /app/php -S 0.0.0.0
+elif [ -f "main.js" ]; then
+  /app/node main.js
+else
+  echo "Çalıştırılabilir bir giriş dosyası bulunamadı (main.go, router.php veya main.js)." >&2
+  exit 1
+fi
