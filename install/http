@@ -1,0 +1,8 @@
+#!/bin/bash
+sh /app/lib/message.sh light "HTTP /app/server/http"
+cd /app/source/http
+sudo /app/go mod init app
+sudo /app/go mod tidy
+sudo mkdir /app/server
+sudo /app/go build -o /app/server/http
+sudo chmod +x /app/server/http
