@@ -38,7 +38,7 @@ if [ -f "main.go" ]; then
   target_path="/build/${out_name}"
 
   sudo mkdir -p /build
-  /app/go build -o "$target_path"
+  sudo /app/go build -o "$target_path"
   sudo chmod +x "$target_path"
   echo "[.] Built binary at ${target_path}"
 
